@@ -1,5 +1,11 @@
 <?php
 
+/*
+
+  Better don't change stuff in here m8
+
+*/
+
 echo "helo";
 
 require "src/Core/autoload.php";
