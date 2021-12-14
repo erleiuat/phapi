@@ -1,7 +1,4 @@
-<html style="background-color: black; color: white;">
-</html>
+<?php define('ENV', './env.php');
 
-<?php
-
-echo "Hello World";
-include('src/main.php');
+require_once ENV;
+require_once ENV::OSAPI_ROOT . ENV::OSAPI_MAIN;
