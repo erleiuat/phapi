@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+WORKDIR="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )" &&
+
+S_NAME="osapi" &&
+S_ROOT="\/home\/elia\/CodeWSL\/phapi" &&
+
+echo "\n\n\t - THIS WILL CHANGE YOUR NGINX-CONFIG! - \n\n"
+
+sudo rm /etc/nginx/sites-available/$S_NAME
+sudo rm /etc/nginx/sites-enabled/$S_NAME
+sudo rm /etc/nginx/sites-enabled/default
+
+sudo cp $WORKDIR/conf/nginx.conf $WORKDIR/conf/$S_NAME &&
+
+sed -i "s/X_SITE_NAME_X/$S_NAME/g" $WORKDIR/conf/$S_NAME &&
+sed -i "s/X_SITE_ROOT_X/$S_ROOT/g" $WORKDIR/conf/$S_NAME &&
+
+sudo mv $WORKDIR/conf/$S_NAME /etc/nginx/sites-available/$S_NAME &&
+sudo chmod 777 -R /etc/nginx/sites-available/ &&
+sudo chmod 777 -R /etc/nginx/sites-enabled/ &&
+sudo ln -s /etc/nginx/sites-available/$S_NAME /etc/nginx/sites-enabled/$S_NAME &&
+
+sudo service php8.0-fpm restart &&
+sudo service nginx restart
+
+echo "\n\n\t - NGINX Configurated! - \n\n"

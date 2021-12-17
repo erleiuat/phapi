@@ -60,7 +60,7 @@ sudo nano /etc/nginx/sites-available/default
   # change 
   index index.html index.htm index.nginx-debian.html;
   # to
-  index index.php index.html index.htm index.nginx-debian.html;
+  index index.html index.htm index.nginx-debian.html;
 
 
   #location ~ \.php$ {
@@ -110,6 +110,26 @@ cat /etc/php/8.0/fpm/pool.d/www.conf
 ### NGINX
 
 <https://wiki.ubuntuusers.de/nginx/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
 
 # Good
 
