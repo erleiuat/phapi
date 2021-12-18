@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+
+echo "\n\n\t - Restarting API-Dependencies... - \n\n" &&
+
+echo "\n - Stopping MySQL:" &&
+sudo service mysql stop &&
+echo "\n - Stopping php-fpm:" &&
+sudo service php8.0-fpm stop &&
+echo "\n - Stopping nginx:" &&
+sudo service nginx stop &&
+
+echo "\n\n - Check Offline:" &&
+sudo service mysql status
+sudo service php8.0-fpm status
+sudo service nginx status
+
+echo "\n\n - Starting MySQL:" &&
+sudo service mysql start &&
+echo "\n - Starting php-fpm:" &&
+sudo service php8.0-fpm start &&
+echo "\n - Starting nginx:" &&
+sudo service nginx start &&
+
+echo "\n\n - Check Online:" &&
+sudo service mysql status
+echo "\n"
+sudo service php8.0-fpm status
+echo "\n"
+sudo service nginx status
+
+echo "\n\n\t - Your API-Endpoint should be available at http://127.0.0.1/ - \n\n"

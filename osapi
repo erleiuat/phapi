@@ -1,5 +1,7 @@
 #!/usr/bin/env php
 <?php
-header("Content-Type: application/json; charset=UTF-8");
 
-echo "osapi";
+define('CRAFT_BASE_PATH', __DIR__);
+// TODO: "Osapi-CLI"
+
+echo CRAFT_BASE_PATH;

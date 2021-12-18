@@ -6,6 +6,21 @@ Your Webserver should point to `./api/`...
 
 ## Notes
 
+### Stream Logs
+
+```Shell
+sudo tail -f /var/log/nginx/access.log
+sudo tail -f /var/log/nginx/error.log
+```
+
+### Reinstall NGINX
+
+```Shell
+# sudo dpkg --force-confmiss -i /var/cache/apt/archives/nginx-*.deb
+sudo apt purge -y nginx* nginx-* &&
+sudo apt install nginx -y
+```
+
 ### MySQL
 
 ```Shell
@@ -88,7 +103,7 @@ sudo service php8.0-fpm restart
 
 
 
-sudo nano /etc/php/7.4/fpm/pool.d/www.conf
+sudo nano /etc/php/8.0/fpm/pool.d/www.conf
   # change 
   listen =  127.0.0.1:9000
   # to

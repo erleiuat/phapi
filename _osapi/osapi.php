@@ -8,8 +8,6 @@
 
 echo "helo";
 
-require "src/Core/autoload.php";
-
 
 /*
 error_reporting(ENV_Main::error_reports);

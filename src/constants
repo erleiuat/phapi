@@ -1,0 +1,5 @@
+#!/usr/bin/env php
+<?php
+
+define('OSAPI_BASE_PATH', dirname(__DIR__));
+define('DIR_SWITCH', '/');
