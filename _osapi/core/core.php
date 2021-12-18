@@ -1,18 +1,18 @@
 <?php
 
-require_once(OA_MODULE . 'dotenv/dotenv.php');
-require_once(OA_MODULE . 'loader/loader.php');
+require_once(OA_MODULE . 'Dotenv.php');
+require_once(OA_MODULE . 'Loader.php');
 Dotenv::load(OA_ENV_FILE);
 
 Loader::req('%CONF%/' . API_ENV);
 
-Loader::req('%MOD%/database/' . API_DB_ENGINE);
-Loader::req('%MOD%/logger/logger');
+Loader::req('%MOD%/DB/' . API_DB_ENGINE);
+Loader::req('%MOD%/Logger');
 Logger::start();
 DB::connect();
 
-Loader::req('%MOD%/responder/responder');
-Loader::req('%MOD%/router/router');
+Loader::req('%MOD%/Responder');
+Loader::req('%MOD%/Router');
 
 if (API_DEBUG) echo '<style>html {background: black; color: white;}</style>';
 else header('Content-Type: application/json; charset=UTF-8');
