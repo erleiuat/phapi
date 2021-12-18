@@ -1,7 +1,97 @@
 #!/usr/bin/env php
 <?php
 
-define('CRAFT_BASE_PATH', __DIR__);
-// TODO: "Osapi-CLI"
+include_once getcwd() . '/_osapi/constants.php';
+require_once(OA_ROOT . 'module/loader/loader.php');
+Loader::req('%MOD%/dotenv/dotenv');
+Dotenv::load(OA_ENV_FILE);
 
-echo CRAFT_BASE_PATH;
+$args = $argv;
+array_shift($args);
+define('EOL', PHP_EOL);
+define('EOL2', EOL . EOL);
+define('TB', "\t");
+
+if (!array_key_exists(0, $args)) return false;
+if (in_array($args[0], ['migrate', 'm'])) {
+
+  Loader::req('%MOD%/database/' . API_DB_ENGINE);
+  if (!DB::connect()) {
+
+    DB::$con = new mysqli(
+      API_DB_SERVER,    // host
+      API_DB_USER,      // username
+      API_DB_PASSWORD,  // password
+      null,             // database
+      API_DB_PORT,      // port
+    );
+
+    if (DB::getCon()->connect_error) die('Unable to connect to server.');
+    $sql = 'CREATE DATABASE ' . API_DB_DATABASE;
+    if (DB::exec($sql)) echo 'Database created successfully';
+    else echo 'Error creating database: ' . $conn->error;
+  }
+
+  $definitions = scandir(OA_BASE_PATH . API_PATH_DB_DEFINITIONS);
+  $tables = [];
+
+  foreach ($definitions as $value) {
+    $parts = explode('.', $value);
+    if (end($parts) == 'php') {
+      array_push($tables, [
+        'class' => trim($parts[0]),
+        'file' => $value,
+      ]);
+    }
+  }
+
+  $def_row = [
+    'name' => null,
+    'type' => 'VARCHAR(255)',
+    'null' => true,
+    'unsigned' => false,
+    'primary' => false,
+    'unique' => false,
+    'default' => null,
+    'reference' => null,
+  ];
+
+  foreach ($tables as $tb) {
+    require_once OA_BASE_PATH . API_PATH_DB_DEFINITIONS . '/' . $tb['file'];
+    $tbl = $tb['class']::$table;
+    $name = API_DB_TABLE_PREFIX . $tbl['name'];
+    $rows = [];
+    $uniques = [];
+
+    foreach ($tbl['rows'] as $row) {
+      $fr = array_merge($def_row, $row);
+      array_push(
+        $rows,
+        $fr['name'] .
+          ' ' . $fr['type'] .
+          ($fr['null'] ? '' : ' NOT NULL') .
+          ($fr['default'] ? " DEFAULT '" . $fr['default'] . "'" : '') .
+          ($fr['primary'] ? " PRIMARY KEY" : '') .
+          ($fr['reference'] ? " REFERENCES " . $fr['reference'][0] . "(" . $fr['reference'][1] . ")" : '')
+      );
+
+      if ($fr['unique']) array_push($uniques, 'UNIQUE INDEX unique_' . $fr['name'] . ' (' . $fr['name'] . ')');
+    }
+
+    $sql = "DROP TABLE IF EXISTS " . $name . ";";
+    echo EOL . EOL2 . $sql . EOL;
+    if (DB::exec($sql)) echo ' -> Tables dropped successfully' . EOL;
+    else echo ' -> Error dropping tables: ' . DB::getCon()->error . EOL;
+
+    $sql =
+      "CREATE TABLE " . $name . " (" . EOL2 . TB .
+      implode(',' . EOL . TB, $rows) .
+      ($uniques ? ',' . EOL : '') . EOL . TB .
+      implode(',' . EOL . TB, $uniques) . EOL .
+      ");";
+
+    echo EOL . $sql . EOL;
+    if (DB::exec($sql)) echo ' -> Tables created successfully' . EOL2;
+    else echo ' -> Error creating tables: ' . DB::getCon()->error . EOL2;
+  }
+}

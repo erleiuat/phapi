@@ -1,23 +1,9 @@
-<?php
+<?php // Better don't change stuff in here m8
 
-/*
-
-  Better don't change stuff in here m8
-
-*/
-
-echo "helo";
+require_once(OA_ROOT . 'core/core.php');
 
 
 /*
-error_reporting(ENV_Main::error_reports);
-date_default_timezone_set(ENV_Main::timezone);
-
-header("Access-Control-Allow-Origin: " . ENV_Main::cors);
-header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-header("Access-Control-Max-Age: 86400");
 
 try {
 
