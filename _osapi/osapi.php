@@ -2,6 +2,17 @@
 
 require_once(OA_ROOT . 'core/core.php');
 
+Logger::write('Osapi', 'Request received');
+Router::resolve();
+
+header("Access-Control-Allow-Methods: " . Router::$route['method']);
+
+if (!Router::$route['path'])
+    Responder::error('Not Found', 'OA0001', 404);
+else
+    Loader::req(Router::$route['path']);
+
+Responder::send();
 
 /*
 

@@ -1,10 +1,12 @@
 #!/usr/bin/env php
 <?php
 
-include_once getcwd() . '/_osapi/constants.php';
-require_once(OA_ROOT . 'module/loader/loader.php');
-Loader::req('%MOD%/dotenv/dotenv');
+require_once getcwd() . '/_osapi/constants.php';
+require_once(OA_MODULE . 'dotenv/dotenv.php');
+require_once(OA_MODULE . 'loader/loader.php');
 Dotenv::load(OA_ENV_FILE);
+Loader::req('%CONF%/' . API_ENV);
+Loader::req('%MOD%/database/' . API_DB_ENGINE);
 
 $args = $argv;
 array_shift($args);
@@ -49,6 +51,7 @@ if (in_array($args[0], ['migrate', 'm'])) {
     'name' => null,
     'type' => 'VARCHAR(255)',
     'null' => true,
+    'auto' => false,
     'unsigned' => false,
     'primary' => false,
     'unique' => false,
@@ -70,9 +73,10 @@ if (in_array($args[0], ['migrate', 'm'])) {
         $fr['name'] .
           ' ' . $fr['type'] .
           ($fr['null'] ? '' : ' NOT NULL') .
-          ($fr['default'] ? " DEFAULT '" . $fr['default'] . "'" : '') .
+          ($fr['default'] ? " DEFAULT " . $fr['default'] . "" : '') .
+          ($fr['auto'] ? " AUTO_INCREMENT" : '') .
           ($fr['primary'] ? " PRIMARY KEY" : '') .
-          ($fr['reference'] ? " REFERENCES " . $fr['reference'][0] . "(" . $fr['reference'][1] . ")" : '')
+          ($fr['reference'] ? " REFERENCES " . API_DB_TABLE_PREFIX . $fr['reference'][0] . "(" . $fr['reference'][1] . ")" : '')
       );
 
       if ($fr['unique']) array_push($uniques, 'UNIQUE INDEX unique_' . $fr['name'] . ' (' . $fr['name'] . ')');

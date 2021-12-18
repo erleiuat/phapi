@@ -35,9 +35,14 @@ sudo mysql
   SELECT user,authentication_string,plugin,host FROM mysql.user;
 
 mysql -u root -p
+
+SELECT * FROM osapi.oa_sys_log;
 #sudo mysqladmin -p -u root version
 
 ```
+
+### PHPMyAdmin
+https://www.digitalocean.com/community/tutorials/how-to-install-and-secure-phpmyadmin-on-ubuntu-20-04-de
 
 ### PHP
 
