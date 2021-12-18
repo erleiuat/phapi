@@ -1,7 +1,8 @@
 <?php
+
 class SysLog {
   static $table = [
-    'name' => 'sys_log',
+    'name' => 'osapi_sys_log',
     'rows' => [
       'sysLogID' => [
         'name' => 'sys_log_id',

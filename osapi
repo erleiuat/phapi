@@ -34,15 +34,27 @@ if (in_array($args[0], ['migrate', 'm'])) {
     else echo 'Error creating database: ' . $conn->error;
   }
 
-  $definitions = scandir(OA_BASE_PATH . API_PATH_DB_DEFINITIONS);
-  $tables = [];
 
-  foreach ($definitions as $value) {
+  $tables = [];
+  $oasis_db = scandir(OA_CORE_DB);
+  $user_db = scandir(OA_BASE_PATH . API_PATH_DB_DEFINITIONS);
+
+  foreach ($oasis_db as $value) {
     $parts = explode('.', $value);
     if (end($parts) == 'php') {
       array_push($tables, [
         'class' => trim($parts[0]),
-        'file' => $value,
+        'file' => OA_CORE_DB . $value,
+      ]);
+    }
+  }
+
+  foreach ($user_db as $value) {
+    $parts = explode('.', $value);
+    if (end($parts) == 'php') {
+      array_push($tables, [
+        'class' => trim($parts[0]),
+        'file' => OA_BASE_PATH . API_PATH_DB_DEFINITIONS . '/' . $value,
       ]);
     }
   }
@@ -60,7 +72,7 @@ if (in_array($args[0], ['migrate', 'm'])) {
   ];
 
   foreach ($tables as $tb) {
-    require_once OA_BASE_PATH . API_PATH_DB_DEFINITIONS . '/' . $tb['file'];
+    require_once $tb['file'];
     $tbl = $tb['class']::$table;
     $name = API_DB_TABLE_PREFIX . $tbl['name'];
     $rows = [];

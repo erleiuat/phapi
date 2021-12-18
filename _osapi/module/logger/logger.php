@@ -2,7 +2,7 @@
 
 class Logger {
 
-  static $table = 'sys_log';
+  static $table = 'osapi_sys_log';
   static $trace = null;
 
   static function write($process, $info, $level = 'trace', $db = API_LOG_DB) {
