@@ -1,0 +1,130 @@
+[
+  {
+    "type": "table",
+    "position": null,
+    "name": "account",
+    "rows": {
+      "account_id": {
+        "null": false,
+        "primary": true,
+        "type": "VARCHAR(50)"
+      },
+      "username": {
+        "null": false,
+        "type": "VARCHAR(85)",
+        "unique": true
+      },
+      "mail": {
+        "null": false,
+        "type": "VARCHAR(90)"
+      },
+      "password": {
+        "null": false,
+        "type": "VARCHAR(255)"
+      },
+      "status": {
+        "default": "'unverified'",
+        "null": false,
+        "type": "ENUM('unverified', 'open', 'banned', 'locked', 'deleted')"
+      },
+      "x_created_at": {
+        "type": "TIMESTAMP",
+        "default": "CURRENT_TIMESTAMP",
+        "null": false
+      },
+      "x_updated_at": {
+        "default": "NULL",
+        "on_update": "CURRENT_TIMESTAMP",
+        "type": "TIMESTAMP"
+      }
+    }
+  },
+  {
+    "type": "table",
+    "position": null,
+    "name": "account_details",
+    "rows": {
+      "account_id": {
+        "type": "VARCHAR(50)",
+        "primary": true,
+        "null": false,
+        "reference": {
+          "row": "account_id",
+          "table": "account"
+        }
+      },
+      "firstname": {
+        "type": "VARCHAR(255)"
+      },
+      "lastname": {
+        "type": "VARCHAR(255)"
+      },
+      "birthdate": {
+        "type": "DATE"
+      },
+      "gender": {
+        "type": "VARCHAR(255)"
+      },
+      "language": {
+        "type": "VARCHAR(5)"
+      },
+      "phone": {
+        "type": "VARCHAR(255)"
+      }
+    }
+  },
+  {
+    "type": "table",
+    "position": null,
+    "name": "account_verification",
+    "rows": {
+      "account_id": {
+        "null": false,
+        "primary": true,
+        "reference": {
+          "row": "account_id",
+          "table": "account"
+        },
+        "type": "VARCHAR(50)"
+      },
+      "identity": {
+        "default": "false",
+        "null": false,
+        "type": "BOOLEAN"
+      },
+      "identity_proof": {
+        "type": "VARCHAR(150)",
+        "unique": true,
+        "reference": {
+          "table": "os🌈asset",
+          "row": "asset_id"
+        }
+      },
+      "identity_verified": {
+        "type": "TIMESTAMP"
+      },
+      "mail": {
+        "default": "false",
+        "null": false,
+        "type": "BOOLEAN"
+      },
+      "mail_code": {
+        "type": "VARCHAR(255)"
+      },
+      "mail_verified": {
+        "type": "TIMESTAMP"
+      },
+      "phone": {
+        "default": "false",
+        "null": false,
+        "type": "BOOLEAN"
+      },
+      "phone_code": {
+        "type": "VARCHAR(255)"
+      },
+      "phone_verified": {
+        "type": "TIMESTAMP"
+      }
+    }
+  }
+]

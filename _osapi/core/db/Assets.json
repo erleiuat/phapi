@@ -1,0 +1,58 @@
+[
+  {
+    "type": "table",
+    "position": null,
+    "name": "os🌈asset",
+    "rows": {
+      "asset_id": {
+        "type": "VARCHAR(150)",
+        "primary": true,
+        "null": false
+      },
+      "kind": {
+        "type": "ENUM('image','video','pdf','document','other')",
+        "default": "'other'",
+        "null": false
+      },
+      "folder": {
+        "type": "VARCHAR(255)",
+        "unique": true
+      },
+      "name": {
+        "type": "VARCHAR(255)"
+      },
+      "extension": {
+        "type": "VARCHAR(255)"
+      },
+      "x_created_at": {
+        "type": "TIMESTAMP",
+        "default": "CURRENT_TIMESTAMP",
+        "null": false
+      },
+      "x_updated_at": {
+        "default": "0",
+        "on_update": "CURRENT_TIMESTAMP",
+        "type": "TIMESTAMP"
+      }
+    }
+  },
+  {
+    "type": "table",
+    "position": null,
+    "name": "os🌈asset_image",
+    "rows": {
+      "asset_id": {
+        "type": "VARCHAR(150)",
+        "primary": true,
+        "null": false,
+        "reference": {
+          "table": "os🌈asset",
+          "row": "asset_id"
+        }
+      },
+      "files": {
+        "type": "JSON"
+      }
+    }
+  }
+]

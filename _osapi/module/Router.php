@@ -1,6 +1,6 @@
 <?php
 
-Loader::req('%BASE%' . API_PATH_ROUTES_CONFIG);
+Loader::req('BASE🦄' . 🌈PATH_ROUTES_CONFIG);
 
 class Router extends RouterConfig {
 
@@ -30,14 +30,14 @@ class Router extends RouterConfig {
     array_shift($parts);
     $point = $method . ':' . implode('.', $parts);
 
-    Logger::write('Router::resolve()', 'Request POINT: ' . $point);
+    📝::write('Router::resolve()', 'Request POINT: ' . $point);
 
-    if (array_key_exists($method, self::$routes)) {
-      $r = self::getRoute(self::$routes[$method], $parts, $point);
+    if (array_key_exists($method, self::$config)) {
+      $r = self::getRoute(self::$config[$method], $parts, $point);
       if ($r)
         self::$route = array_merge(self::$route, $r);
       else
-        Logger::write('Router::resolve()', 'NOT FOUND: ' . $point, 'warn');
+        📝::write('Router::resolve()', 'NOT FOUND: ' . $point, 'warn');
     }
   }
 }

@@ -1,4 +1,5 @@
 <?php
 
-Responder::addContent('yay');
-Responder::success('Request Successful');
+😼📝('yay');
+
+😺✅('Request Successful');

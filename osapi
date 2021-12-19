@@ -2,65 +2,71 @@
 <?php
 
 require_once getcwd() . '/_osapi/constants.php';
-require_once(OA_MODULE . 'dotenv/dotenv.php');
-require_once(OA_MODULE . 'loader/loader.php');
+require_once(OA_MODULE . 'Dotenv.php');
+require_once(OA_MODULE . 'Loader.php');
 Dotenv::load(OA_ENV_FILE);
-Loader::req('%CONF%/' . API_ENV);
-Loader::req('%MOD%/database/' . API_DB_ENGINE);
+Loader::req('CONF🦄/' . 🌈ENV);
+Loader::req('MOD🦄/DB/' . 🌈DB_ENGINE);
 
 $args = $argv;
 array_shift($args);
 define('EOL', PHP_EOL);
 define('EOL2', EOL . EOL);
 define('TB', "\t");
+define('TL', str_repeat("——————————", 5));
 
 if (!array_key_exists(0, $args)) return false;
 if (in_array($args[0], ['migrate', 'm'])) {
 
-  Loader::req('%MOD%/database/' . API_DB_ENGINE);
-  if (!DB::connect()) {
+  if (!DB::connect(false)) {
 
     DB::$con = new mysqli(
-      API_DB_SERVER,    // host
-      API_DB_USER,      // username
-      API_DB_PASSWORD,  // password
+      🌈DB_SERVER,    // host
+      🌈DB_USER,      // username
+      🌈DB_PASSWORD,  // password
       null,             // database
-      API_DB_PORT,      // port
+      🌈DB_PORT,      // port
     );
 
     if (DB::getCon()->connect_error) die('Unable to connect to server.');
-    $sql = 'CREATE DATABASE ' . API_DB_DATABASE;
-    if (DB::exec($sql)) echo 'Database created successfully';
+    $sql = 'CREATE DATABASE ' . 🌈DB_DATABASE;
+    if (DB::exec($sql, false)) echo 'Database created successfully';
     else echo 'Error creating database: ' . $conn->error;
   }
 
-
-  $tables = [];
-  $oasis_db = scandir(OA_CORE_DB);
-  $user_db = scandir(OA_BASE_PATH . API_PATH_DB_DEFINITIONS);
-
-  foreach ($oasis_db as $value) {
-    $parts = explode('.', $value);
-    if (end($parts) == 'php') {
-      array_push($tables, [
-        'class' => trim($parts[0]),
-        'file' => OA_CORE_DB . $value,
-      ]);
+  function getFiles($dirScan, $path) {
+    if (!$dirScan) return [];
+    $tmpFiles = [];
+    foreach ($dirScan as $value) {
+      $parts = explode('.', $value);
+      if (end($parts) == 'json') array_push($tmpFiles, $path . $value);
     }
+    return $tmpFiles;
   }
 
-  foreach ($user_db as $value) {
-    $parts = explode('.', $value);
-    if (end($parts) == 'php') {
-      array_push($tables, [
-        'class' => trim($parts[0]),
-        'file' => OA_BASE_PATH . API_PATH_DB_DEFINITIONS . '/' . $value,
-      ]);
+  function getFileTables($file, $defaultRow) {
+    $data = json_decode(file_get_contents($file), true);
+    $tables = [];
+    foreach ($data as $table) {
+      if (count($table) < 1) continue;
+      $rows = [];
+      foreach ($table['rows'] as $row => $info)
+        $rows[$row] = array_merge($defaultRow, $info);
+      $tables[$table['name']] = [
+        'type' => array_key_exists('type', $table) ? strtoupper($table['type']) : 'TABLE',
+        'position' => array_key_exists('position', $table) ? $table['position'] : null,
+        'rows' => $rows,
+      ];
     }
+    return $tables;
   }
 
-  $def_row = [
-    'name' => null,
+  $defaultTable = [
+    'position' => null,
+    'rows' => null,
+  ];
+
+  $defaultRow = [
     'type' => 'VARCHAR(255)',
     'null' => true,
     'auto' => false,
@@ -69,34 +75,63 @@ if (in_array($args[0], ['migrate', 'm'])) {
     'unique' => false,
     'default' => null,
     'reference' => null,
+    'on_update' => null,
   ];
 
-  foreach ($tables as $tb) {
-    require_once $tb['file'];
-    $tbl = $tb['class']::$table;
-    $name = API_DB_TABLE_PREFIX . $tbl['name'];
-    $rows = [];
-    $uniques = [];
+  $defaultStamps = [
+    'x_created_at' => [
+      'type' => 'TIMESTAMP',
+      'default' => 'CURRENT_TIMESTAMP',
+      'null' => false
+    ],
+    'x_updated_at' => [
+      'default' => 'NULL',
+      'on_update' => 'CURRENT_TIMESTAMP',
+      'type' => 'TIMESTAMP'
+    ]
+  ];
 
-    foreach ($tbl['rows'] as $row) {
-      $fr = array_merge($def_row, $row);
+  $path_core = OA_CORE_DB;
+  $path_user = OA_BASE_PATH . 🌈PATH_DB_DEFINITIONS . '/';
+
+  $files = [];
+  $files = array_merge($files, getFiles(scandir($path_core), $path_core));
+  $files = array_merge($files, getFiles(scandir($path_user), $path_user));
+
+  $tables = [];
+  foreach ($files as $file)
+    $tables = array_merge($tables, getFileTables($file, $defaultRow));
+
+  # $sqls = []; // TODO ?
+
+  foreach ($tables as $tb => $info) {
+    $name = 🌈DB_TABLE_PREFIX . $tb;
+    $uniques = [];
+    $rows = [];
+
+    if (!array_key_exists('no_stamps', $info))
+      $info['rows'] = array_merge($info['rows'], $defaultStamps);
+
+    foreach ($info['rows'] as $row => $props) {
+      $fr = array_merge($defaultRow, $props);
+      if ($fr['unique']) array_push($uniques, 'UNIQUE INDEX unique_' . $row . ' (' . $row . ')');
       array_push(
         $rows,
-        $fr['name'] .
-          ' ' . $fr['type'] .
+        '' .
+          ($row . ' ') .
+          ($fr['type']) .
           ($fr['null'] ? '' : ' NOT NULL') .
-          ($fr['default'] ? " DEFAULT " . $fr['default'] . "" : '') .
+          ($fr['default'] !== null ? " DEFAULT " . $fr['default'] . "" : '') .
           ($fr['auto'] ? " AUTO_INCREMENT" : '') .
           ($fr['primary'] ? " PRIMARY KEY" : '') .
-          ($fr['reference'] ? " REFERENCES " . API_DB_TABLE_PREFIX . $fr['reference'][0] . "(" . $fr['reference'][1] . ")" : '')
+          ($fr['reference'] ? " REFERENCES " . 🌈DB_TABLE_PREFIX . $fr['reference']['table'] . "(" . $fr['reference']['row'] . ")" : '') .
+          ($fr['on_update'] ? " ON UPDATE " . $fr['on_update'] . "" : '')
       );
-
-      if ($fr['unique']) array_push($uniques, 'UNIQUE INDEX unique_' . $fr['name'] . ' (' . $fr['name'] . ')');
     }
 
-    $sql = "DROP TABLE IF EXISTS " . $name . ";";
-    echo EOL . EOL2 . $sql . EOL;
-    if (DB::exec($sql)) echo ' -> Tables dropped successfully' . EOL;
+    $sql = "DROP TABLE IF EXISTS " . $name;
+    echo EOL . TL . '> ' . $info['type'] . TB . $name . EOL2 . $sql;
+    if (DB::exec($sql . ';', false)) echo ' -> Tables dropped successfully' . EOL;
     else echo ' -> Error dropping tables: ' . DB::getCon()->error . EOL;
 
     $sql =
@@ -104,10 +139,13 @@ if (in_array($args[0], ['migrate', 'm'])) {
       implode(',' . EOL . TB, $rows) .
       ($uniques ? ',' . EOL : '') . EOL . TB .
       implode(',' . EOL . TB, $uniques) . EOL .
-      ");";
+      ")";
 
-    echo EOL . $sql . EOL;
-    if (DB::exec($sql)) echo ' -> Tables created successfully' . EOL2;
-    else echo ' -> Error creating tables: ' . DB::getCon()->error . EOL2;
+    echo EOL . $sql;
+    if (DB::exec($sql . ';', false)) echo ' -> Tables created successfully' . EOL;
+    else {
+      echo ' -> Error creating tables: ' . DB::getCon()->error . EOL;
+      die();
+    }
   }
 }

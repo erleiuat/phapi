@@ -1,0 +1,35 @@
+[
+  {
+    "type": "table",
+    "position": null,
+    "name": "os🌈sys_log",
+    "rows": {
+      "sys_log_id": {
+        "auto": true,
+        "null": false,
+        "primary": true,
+        "type": "INT(6)",
+        "unsigned": true
+      },
+      "level": {
+        "default": "'trace'",
+        "null": false,
+        "type": "ENUM('trace','debug','info', 'warn', 'error', 'fatal')"
+      },
+      "process": {
+        "type": "VARCHAR(50)"
+      },
+      "info": {
+        "type": "TEXT"
+      },
+      "stamp": {
+        "default": "CURRENT_TIMESTAMP",
+        "type": "TIMESTAMP"
+      },
+      "trace": {
+        "type": "JSON"
+      }
+    }
+  },
+  {}
+]

@@ -2,15 +2,15 @@
 
 class Logger {
 
-  static $table = 'osapi_sys_log';
+  static $table = 'os🌈sys_log';
   static $trace = null;
 
-  static function write($process, $info, $level = 'trace', $db = API_LOG_DB) {
-    if (API_LOG_FILE) {
+  static function write($process, $info, $level = 'trace', $db = 🌈LOG_DB) {
+    if (🌈LOG_FILE) {
       $line =
         '[' . $level . '][' . date("H:i:s") . '][' . $process . '] ' . $info .
-        ' [' . json_encode(self::$trace) . ']' . PHP_EOL;
-      $fName = OA_BASE_PATH . API_PATH_LOG_FILES . '/' . date("Y_m_d") . '.log';
+        ' [' . 🐯(self::$trace) . ']' . PHP_EOL;
+      $fName = OA_BASE_PATH . 🌈PATH_LOG_FILES . '/' . date("Y_m_d") . '.log';
       if (!file_exists($fName)) mkdir(dirname($fName), 0777, true);
       file_put_contents($fName, $line, FILE_APPEND);
     }
@@ -19,7 +19,7 @@ class Logger {
       DB::insert(
         self::$table,
         ['level', 'process', 'info', 'trace'],
-        [[$level, $process, $info, json_encode(self::$trace)]]
+        [[$level, $process, $info, 🐯(self::$trace)]]
       );
   }
 

@@ -17,48 +17,83 @@ class DB {
     self::$con = $con;
   }
 
-  static function connect() {
-    self::setCon(new mysqli(
-      API_DB_SERVER,    // host
-      API_DB_USER,      // username
-      API_DB_PASSWORD,  // password
-      API_DB_DATABASE,  // dbname
-      API_DB_PORT,      // port
-    ));
+  static function getError() {
+    return '[(' . self::$con->errno . ') ' . self::$con->error . ']';
+  }
 
-    if (self::$con->connect_error) {
-      Logger::write('DB::connect()', self::$con->connect_error, 'error');
-      return false;
-    };
+  static function connect($log = true) {
+    try {
+      self::$con = new PDO(
+        'mysql:' .
+          'dbname=' . 🌈DB_DATABASE . ';' .
+          'host=' . 🌈DB_SERVER . ';' .
+          'port=' . 🌈DB_PORT,
+        🌈DB_USER,
+        🌈DB_PASSWORD
+      );
+
+      self::$con->exec("SET NAMES utf8");
+      self::$con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } catch (PDOException $e) {
+      if ($log) 📝::write('OA_DB001', self::getError(), 'fatal');
+      Halt::stop('OA_DB001');
+    }
 
     return true;
   }
 
-  static function exec($query) {
-    if (API_LOG_QUERY) Logger::write('DB->exec()', 'Running Query: "' . $query . '"', 'trace', false);
+  static function exec($query, $log = true) {
+    if (🌈LOG_QUERY && $log) 📝::write('DB->exec()', 'Running Query: "' . $query . '"', 'trace', false);
     if (self::$con->query($query) === true) return true;
-    Logger::write('DB->exec()', 'Query failed: "' . self::getCon()->error . '"', 'error', false);
+    if ($log) 📝::write('DB->exec()', 'Query failed: "' . self::getError() . '"', 'error', false);
     return false;
   }
 
   static function insert($table, $keys, $values) {
+    if (!is_array($values[0])) $values = array_merge([], [$values]);
 
-    $sql_insert = 'INSERT INTO ' . API_DB_TABLE_PREFIX . $table;
-    $sql_keys = '(' . implode(', ', $keys) . ')';
-    $sql_vals = [];
+    $vals = [];
+    foreach ($values as $i => $row) {
+      $entry = [];
+      foreach ($keys as $e => $key) $entry[':' . $key] = $row[$e];
+      array_push($vals, $entry);
+    }
 
-    if (is_array($values[0]))
-      foreach ($values as $e)
-        array_push($sql_vals, "('" . implode("','", $e) . "')");
-    else
-      $sql_vals = $values;
+    $stmt = self::$con->prepare(
+      'INSERT INTO ' . 🌈DB_TABLE_PREFIX . $table .
+        '(' . implode(',', $keys) . ') ' .
+        'VALUES (:' . implode(', :', $keys) . ')'
+    );
 
-    $sql =
-      $sql_insert . ' ' .
-      $sql_keys . ' VALUES ' .
-      implode(',', $sql_vals) .
-      ';';
+    if (!$stmt) {
+      📝::write('OA_DB002', self::getError(), 'fatal');
+      Halt::stop('OA_DB002');
+    }
 
-    return self::exec($sql);
+    foreach ($vals as $entry) $stmt->execute($entry);
+    return true;
+  }
+
+  static function read($table, $columns = ['*'], $filter = []) {
+
+    $keys = [];
+    $vals = [];
+    foreach ($filter as $key => $val) {
+      array_push($keys, $key . '=:' . $key);
+      $vals[':' . $key] = $val;
+    }
+
+    $stmt = self::$con->prepare(
+      'SELECT ' . implode(',', $columns) . ' ' .
+        'FROM ' . 🌈DB_TABLE_PREFIX . $table .
+        (count($vals) > 0 ? ' WHERE ' . implode(', ', $keys) : '')
+    );
+    $stmt->execute($vals);
+    $result = $stmt->fetchAll();
+    return count($result) ? $result : null;
   }
 }
+
+/*
+return self::$db->connection->lastInsertId();
+*/

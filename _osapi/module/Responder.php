@@ -17,7 +17,7 @@ class Responder {
     self::$success = true;
     self::$status = $status;
     self::$message = $message;
-    Logger::write('Responder::success()', 'Successful (' . $status . ')');
+    📝::write('Responder::success()', 'Successful (' . $status . ')');
   }
 
   static function error($message, $error, $status = 500) {
@@ -25,25 +25,25 @@ class Responder {
     self::$status = $status;
     self::$message = $message;
     self::$error = $error;
-    Logger::write('Responder::error()', 'Error (' . $status . ') -> ' . $error, 'warn');
+    📝::write('Responder::error()', 'Error (' . $status . ', ' . $error . ') -> ' . 🐯($message), 'warn');
   }
 
   static function send() {
 
     if (self::$success) {
-      $reply = json_encode([
+      $reply = 🐯([
         "success" => true,
         "message" => self::$message,
         "content" => self::$content
       ]);
-      Logger::write('Responder::send()', 'Sending Response: ' . $reply);
+      📝::write('Responder::send()', 'Sending Response: ' . $reply);
     } else {
-      $reply = json_encode([
+      $reply = 🐯([
         "success" => false,
         "message" => self::$message,
         "error" => self::$error
       ]);
-      Logger::write('Responder::send()', 'Sending Response: ' . $reply, 'warn');
+      📝::write('Responder::send()', 'Sending Response: ' . $reply, 'warn');
     }
 
     http_response_code(self::$status);

@@ -1,20 +1,40 @@
 <?php
 
 class RouterConfig {
-  static $routes = [
+  static $config = [
+
     'GET' => [
       'TEST' => [
         'PING' => [
           'method' => 'GET',
           'route' => 'GET:TEST.PING',
-          'path' => '%R%/test/ping'
+          'path' => 'ROU🦄/test/ping'
+        ],
+        'HASH' => [
+          'method' => 'GET',
+          'route' => 'GET:TEST.HASH',
+          'path' => 'ROU🦄/test/hash'
         ]
       ]
     ],
-    'POST' => [],
+
+    'POST' => [
+      'ACCOUNT' => [
+        'CREATE' => [
+          'method' => 'POST',
+          'route' => 'POST:ACCOUNT.CREATE',
+          'path' => 'ROU🦄/Account/create'
+        ]
+      ]
+    ],
+
     'PUT' => [],
+
     'PATCH' => [],
+
     'DELETE' => [],
+
     'OPTIONS' => [],
+
   ];
 }
